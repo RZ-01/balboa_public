@@ -460,3 +460,14 @@ template <typename T>
 inline std::ostream& operator<<(std::ostream &os, const TVector4<T> &v) {
     return os << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
 }
+
+template <typename T>
+inline TVector2<T> min(const TVector2<T> &a, const TVector2<T> &b) {
+    return TVector2<T>(a.x < b.x ? a.x : b.x, a.y < b.y ? a.y : b.y);
+}
+
+template <typename T>
+inline TVector2<T> max(const TVector2<T> &a, const TVector2<T> &b) {
+    return TVector2<T>(a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y);
+}
+

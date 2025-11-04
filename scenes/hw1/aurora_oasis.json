@@ -1,0 +1,258 @@
+{
+    "resolution": [2560, 1440],
+    "background": [0.04, 0.07, 0.12],
+    "objects": [
+        {
+            "type": "circle",
+            "center": [2200, 1180],
+            "radius": 260,
+            "fill_color": [0.96, 0.92, 0.76],
+            "fill_alpha": 0.75,
+            "stroke_color": [0.98, 0.95, 0.82],
+            "stroke_width": 6,
+            "stroke_alpha": 0.85
+        },
+        {
+            "type": "circle",
+            "center": [350, 1250],
+            "radius": 14,
+            "fill_color": [0.96, 0.98, 1.0],
+            "fill_alpha": 0.85
+        },
+        {
+            "type": "circle",
+            "center": [680, 1080],
+            "radius": 10,
+            "fill_color": [0.9, 0.96, 1.0],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [1020, 1340],
+            "radius": 12,
+            "fill_color": [0.95, 1.0, 0.9],
+            "fill_alpha": 0.82
+        },
+        {
+            "type": "circle",
+            "center": [1400, 1180],
+            "radius": 8,
+            "fill_color": [1.0, 0.96, 0.95],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [1720, 1280],
+            "radius": 9,
+            "fill_color": [0.92, 0.94, 1.0],
+            "fill_alpha": 0.82
+        },
+        {
+            "type": "circle",
+            "center": [1960, 1110],
+            "radius": 11,
+            "fill_color": [0.93, 0.98, 1.0],
+            "fill_alpha": 0.78
+        },
+        {
+            "type": "circle",
+            "center": [2300, 1050],
+            "radius": 9,
+            "fill_color": [0.9, 0.96, 1.0],
+            "fill_alpha": 0.76
+        },
+        {
+            "type": "circle",
+            "center": [2400, 1320],
+            "radius": 7,
+            "fill_color": [0.95, 0.98, 1.0],
+            "fill_alpha": 0.78
+        },
+        {
+            "type": "circle",
+            "center": [2120, 1360],
+            "radius": 6,
+            "fill_color": [0.96, 0.98, 1.0],
+            "fill_alpha": 0.76
+        },
+        {
+            "type": "circle",
+            "center": [1880, 1320],
+            "radius": 5,
+            "fill_color": [0.92, 0.96, 1.0],
+            "fill_alpha": 0.74
+        },
+        {
+            "type": "circle",
+            "center": [1620, 1260],
+            "radius": 6,
+            "fill_color": [0.94, 0.98, 1.0],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [1340, 1360],
+            "radius": 7,
+            "fill_color": [1.0, 0.98, 0.9],
+            "fill_alpha": 0.82
+        },
+        {
+            "type": "circle",
+            "center": [1100, 1300],
+            "radius": 5,
+            "fill_color": [0.92, 0.95, 1.0],
+            "fill_alpha": 0.76
+        },
+        {
+            "type": "circle",
+            "center": [860, 1360],
+            "radius": 6,
+            "fill_color": [0.95, 0.97, 1.0],
+            "fill_alpha": 0.78
+        },
+        {
+            "type": "circle",
+            "center": [620, 1280],
+            "radius": 5,
+            "fill_color": [0.94, 0.98, 1.0],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [380, 1100],
+            "radius": 6,
+            "fill_color": [0.98, 0.99, 1.0],
+            "fill_alpha": 0.82
+        },
+        {
+            "type": "circle",
+            "center": [140, 1200],
+            "radius": 5,
+            "fill_color": [0.95, 0.98, 1.0],
+            "fill_alpha": 0.78
+        },
+        {
+            "type": "circle",
+            "center": [210, 980],
+            "radius": 7,
+            "fill_color": [0.9, 0.94, 1.0],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [520, 1180],
+            "radius": 6,
+            "fill_color": [0.95, 0.95, 1.0],
+            "fill_alpha": 0.76
+        },
+        {
+            "type": "circle",
+            "center": [820, 1000],
+            "radius": 7,
+            "fill_color": [1.0, 0.98, 0.88],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [1180, 1210],
+            "radius": 6,
+            "fill_color": [0.92, 0.95, 1.0],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "circle",
+            "center": [1480, 980],
+            "radius": 8,
+            "fill_color": [0.95, 0.98, 1.0],
+            "fill_alpha": 0.78
+        },
+        {
+            "type": "circle",
+            "center": [1840, 1020],
+            "radius": 6,
+            "fill_color": [1.0, 0.95, 0.9],
+            "fill_alpha": 0.75
+        },
+        {
+            "type": "circle",
+            "center": [2080, 1280],
+            "radius": 5,
+            "fill_color": [0.9, 0.95, 1.0],
+            "fill_alpha": 0.74
+        },
+        {
+            "type": "rectangle",
+            "p_min": [0, 0],
+            "p_max": [2560, 380],
+            "fill_color": [0.02, 0.08, 0.09],
+            "fill_alpha": 0.95
+        },
+        {
+            "type": "rectangle",
+            "p_min": [0, 360],
+            "p_max": [2560, 510],
+            "fill_color": [0.03, 0.1, 0.15],
+            "fill_alpha": 0.8
+        },
+        {
+            "type": "polyline",
+            "points": [-40, 500, 220, 820, 520, 560, 860, 880, 1220, 520, 1580, 860, 1940, 560, 2260, 780, 2660, 520],
+            "is_closed": true,
+            "fill_color": [0.07, 0.18, 0.28],
+            "fill_alpha": 0.8,
+            "stroke_color": [0.12, 0.26, 0.38],
+            "stroke_width": 3,
+            "stroke_alpha": 0.4
+        },
+        {
+            "type": "polyline",
+            "points": [220, 1080, 560, 1220, 960, 1180, 1320, 1320, 1760, 1180, 2140, 1260, 2420, 1160],
+            "is_closed": false,
+            "stroke_color": [0.24, 0.82, 0.9],
+            "stroke_width": 24,
+            "stroke_alpha": 0.5
+        },
+        {
+            "type": "polyline",
+            "points": [120, 990, 440, 1140, 860, 1040, 1180, 1200, 1560, 1030, 1880, 1180, 2260, 960, 2550, 1100],
+            "is_closed": false,
+            "stroke_color": [0.36, 0.9, 0.68],
+            "stroke_width": 20,
+            "stroke_alpha": 0.46
+        },
+        {
+            "type": "polyline",
+            "points": [200, 880, 520, 980, 900, 940, 1240, 1040, 1620, 960, 1980, 1050, 2300, 920, 2560, 1020],
+            "is_closed": false,
+            "stroke_color": [0.5, 0.78, 0.98],
+            "stroke_width": 16,
+            "stroke_alpha": 0.42
+        },
+        {
+            "type": "polyline",
+            "points": [260, 840, 480, 900, 660, 870, 820, 920, 980, 860, 1160, 890, 1340, 820],
+            "is_closed": true,
+            "fill_color": [0.08, 0.2, 0.26],
+            "fill_alpha": 0.7,
+            "stroke_color": [0.12, 0.28, 0.34],
+            "stroke_width": 2,
+            "stroke_alpha": 0.5
+        },
+        {
+            "type": "polyline",
+            "points": [420, 300, 520, 360, 620, 300],
+            "is_closed": false,
+            "stroke_color": [0.18, 0.48, 0.58],
+            "stroke_width": 10,
+            "stroke_alpha": 0.5
+        },
+        {
+            "type": "polyline",
+            "points": [1980, 260, 2120, 300, 2280, 260],
+            "is_closed": false,
+            "stroke_color": [0.16, 0.5, 0.62],
+            "stroke_width": 12,
+            "stroke_alpha": 0.45
+        }
+    ]
+}

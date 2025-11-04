@@ -1,0 +1,32 @@
+{
+    "resolution": [640, 480],
+    "background": [0.95, 0.95, 0.95],
+    "objects": [
+        {
+            "type": "bezier_curve",
+            "p0": [290, 240],
+            "p1": [440, 80],
+            "p2": [590, 470],
+            "stroke_color": [0.2, 0.6, 1.0],
+            "stroke_width": 4
+        },
+        {
+            "type": "circle",
+            "center": [290, 240],
+            "radius": 5,
+            "fill_color": [0.0, 0.3, 1.0]
+        },
+        {
+            "type": "circle",
+            "center": [440, 80],
+            "radius": 5,
+            "fill_color": [0.5, 0.7, 1.0]
+        },
+        {
+            "type": "circle",
+            "center": [590, 470],
+            "radius": 5,
+            "fill_color": [0.0, 0.3, 1.0]
+        }
+    ]
+}

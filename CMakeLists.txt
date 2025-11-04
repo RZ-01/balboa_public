@@ -56,4 +56,25 @@ add_subdirectory(src/3rdparty/glfw)
 # OpenGL
 find_package(OpenGL REQUIRED)
 
+# OpenMP
+if(APPLE)
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp")
+        set(OpenMP_C_LIB_NAMES "omp")
+        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
+        set(OpenMP_CXX_LIB_NAMES "omp")
+        set(OpenMP_C_FLAGS "${OpenMP_C_FLAGS} -I/opt/homebrew/opt/libomp/include")
+        set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -I/opt/homebrew/opt/libomp/include")
+        set(OpenMP_omp_LIBRARY "/opt/homebrew/opt/libomp/lib/libomp.dylib")
+    endif()
+endif()
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(balboa_lib PUBLIC OpenMP::OpenMP_CXX)
+    message(STATUS "OpenMP found and enabled for multithreading")
+else()
+    message(WARNING "OpenMP not found.")
+endif()
+
 target_link_libraries(balboa balboa_lib glfw OpenGL::GL)

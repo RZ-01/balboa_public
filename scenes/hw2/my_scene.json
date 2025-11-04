@@ -1,0 +1,27 @@
+{
+  "camera": {
+    "resolution": [640, 480],
+    "transform": [
+      {
+        "lookat": {
+          "position": [2.8, 1.4, 2.6],
+          "target": [0.0, 0.0, 0.0],
+          "up": [0.0, 1.0, 0.0]
+        }
+      }
+    ],
+    "s": 0.4,
+    "z_near": 1e-4
+  },
+  "background": [0.1, 0.1, 0.12],
+  "objects": [
+    {
+      "filename": "trefoil_tube_colorrich.ply",
+      "transform": [
+        {"rotate": [20, 1, 0, 0]},
+        {"rotate": [35, 0, 1, 0]},
+        {"scale": [1.2, 1.2, 1.2]}
+      ]
+    }
+  ]
+}

@@ -112,7 +112,18 @@ TriangleMesh mesh3 {
      {0.8, 0.8, 0.2}}
 };
 
-std::vector<TriangleMesh> meshes = {mesh0, mesh1, mesh2, mesh3};
+TriangleMesh mesh4 {
+    // ver
+    {{2, 2, -1}, {-1, -1, -2}, {2, 0, -3}},
+    // face
+    {{0, 1, 2}},
+    // face_color
+    {{0.3, 0.8, 0.2}},
+    // vertex_color
+    {{0.3, 0.8, 0.2}, {0.3, 0.8, 0.2}, {0.3, 0.8, 0.2}}
+};
+
+std::vector<TriangleMesh> meshes = {mesh0, mesh1, mesh2, mesh3, mesh4};
 
 TriangleMesh parse_ply(const fs::path &filename) {
     std::ifstream ifs(filename, std::ios::binary);
@@ -236,27 +247,71 @@ Matrix4x4 parse_transformation(const json &node) {
         return F;
     }
 
+    auto deg2rad = [](Real deg){ return deg * Real(M_PI) / Real(180.0); };
+    auto make_scale = [&](const Vector3 &s) {
+        Matrix4x4 M = Matrix4x4::identity();
+        M(0,0) = s.x; 
+        M(1,1) = s.y; 
+        M(2,2) = s.z; 
+        M(3,3) = 1;
+        return M;
+    };
+    auto make_translate = [&](const Vector3 &t) {
+        Matrix4x4 M = Matrix4x4::identity();
+        M(0,3) = t.x; 
+        M(1,3) = t.y; 
+        M(2,3) = t.z; 
+        M(3,3) = 1;
+        return M;
+    };
+    auto make_rotate_axis_angle = [&](Real angle_deg, const Vector3 &axis_raw) {
+        Vector3 a = normalize(axis_raw);
+        Real x = a.x, y = a.y, z = a.z;
+        Real theta = deg2rad(angle_deg);
+        Real c = std::cos(theta), s = std::sin(theta);
+        Real ic = Real(1) - c;
+        Vector3 c0{x * x * ic + c, x * y * ic + z * s, x * z * ic - y * s};
+        Vector3 c1{y * x * ic - z * s, y * y * ic + c, y * z * ic + x * s};
+        Vector3 c2{z * x * ic + y * s, z * y * ic - x * s, z * z * ic + c};
+        Matrix4x4 M = Matrix4x4::identity();
+        M(0,0)=c0.x; M(1,0)=c0.y; M(2,0)=c0.z; M(3,0)=0;
+        M(0,1)=c1.x; M(1,1)=c1.y; M(2,1)=c1.z; M(3,1)=0;
+        M(0,2)=c2.x; M(1,2)=c2.y; M(2,2)=c2.z; M(3,2)=0;
+        M(0,3)=0; M(1,3)=0; M(2,3)=0; M(3,3)=1;
+        return M;
+    };
+    auto make_lookat = [&](const Vector3 &position, const Vector3 &target, const Vector3 &up) {
+        Vector3 d = normalize(target - position);
+        Vector3 r = normalize(cross(d, up));
+        Vector3 u2 = cross(r, d);
+        Matrix4x4 L = Matrix4x4::identity();
+        L(0,0)=r.x; L(1,0)=r.y; L(2,0)=r.z; L(3,0)=0;
+        L(0,1)=u2.x; L(1,1)=u2.y; L(2,1)=u2.z; L(3,1)=0;
+        L(0,2)=-d.x; L(1,2)=-d.y; L(2,2)=-d.z; L(3,2)=0;
+        L(0,3)=position.x; L(1,3)=position.y; L(2,3)=position.z; L(3,3)=1;
+        return L;
+    };
+
     for (auto it = transform_it->begin(); it != transform_it->end(); it++) {
         if (auto scale_it = it->find("scale"); scale_it != it->end()) {
             Vector3 scale = Vector3{
                 (*scale_it)[0], (*scale_it)[1], (*scale_it)[2]
             };
             // TODO (HW2.4): construct a scale matrix and composite with F
-            UNUSED(scale); // silence warning, feel free to remove it
+            F = make_scale(scale) * F;
         } else if (auto rotate_it = it->find("rotate"); rotate_it != it->end()) {
             Real angle = (*rotate_it)[0];
             Vector3 axis = normalize(Vector3{
                 (*rotate_it)[1], (*rotate_it)[2], (*rotate_it)[3]
             });
             // TODO (HW2.4): construct a rotation matrix and composite with F
-            UNUSED(angle); // silence warning, feel free to remove it
-            UNUSED(axis); // silence warning, feel free to remove it
+            F = make_rotate_axis_angle(angle, axis) * F;
         } else if (auto translate_it = it->find("translate"); translate_it != it->end()) {
             Vector3 translate = Vector3{
                 (*translate_it)[0], (*translate_it)[1], (*translate_it)[2]
             };
             // TODO (HW2.4): construct a translation matrix and composite with F
-            UNUSED(translate); // silence warning, feel free to remove it
+            F = make_translate(translate) * F;
         } else if (auto lookat_it = it->find("lookat"); lookat_it != it->end()) {
             Vector3 position{0, 0, 0};
             Vector3 target{0, 0, -1};
@@ -279,7 +334,7 @@ Matrix4x4 parse_transformation(const json &node) {
                     (*up_it)[0], (*up_it)[1], (*up_it)[2]
                 });
             }
-            // TODO (HW2.4): construct a lookat matrix and composite with F
+            F = make_lookat(position, target, up) * F;
         }
     }
     return F;
@@ -289,7 +344,6 @@ Scene parse_scene(const fs::path &filename) {
     std::ifstream f(filename.string().c_str());
     json data = json::parse(f);
 
-    // back up the current working directory and switch to the parent folder of the file
     fs::path old_path = fs::current_path();
     fs::current_path(filename.parent_path());
 
@@ -377,7 +431,6 @@ Scene parse_scene(const fs::path &filename) {
         scene.meshes.push_back(mesh);
     }
 
-    // switch back to the old current working directory
     fs::current_path(old_path);
     return scene;
 }

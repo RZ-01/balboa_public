@@ -31,19 +31,66 @@ struct Polyline {
     Matrix3x3 transform;
 };
 
-using Shape = std::variant<Circle, Polyline>;
+struct BezierCurve {
+    Vector2 p0;  // Start point
+    Vector2 p1;  // Control point
+    Vector2 p2;  // End point
+    std::optional<Vector3> stroke_color;
+    Real stroke_alpha;
+    Real stroke_width;
+    Matrix3x3 transform;
+};
+
+using Shape = std::variant<Circle, Polyline, BezierCurve>;
+
+struct boundingbox
+{
+    Vector2 min;
+    Vector2 max;
+};
+
+
+enum class state{
+    Up,
+    Down,
+    None
+};
 
 inline void set_fill_color(Shape &shape, const Vector3 &fill_color) {
-    std::visit([&](auto &s) { s.fill_color = fill_color; }, shape);
+    std::visit([&](auto &s) {
+        using T = std::decay_t<decltype(s)>;
+        if constexpr (!std::is_same_v<T, BezierCurve>) {
+            s.fill_color = fill_color;
+        }
+    }, shape);
 }
 inline std::optional<Vector3> get_fill_color(const Shape &shape) {
-    return std::visit([](const auto &s) { return s.fill_color; }, shape);
+    return std::visit([](const auto &s) -> std::optional<Vector3> {
+        using T = std::decay_t<decltype(s)>;
+        if constexpr (std::is_same_v<T, BezierCurve>) {
+            return std::nullopt;
+        } else {
+            return s.fill_color;
+        }
+    }, shape);
 }
 inline void set_fill_alpha(Shape &shape, Real fill_alpha) {
-    std::visit([&](auto &s) { s.fill_alpha = fill_alpha; }, shape);
+    std::visit([&](auto &s) {
+        using T = std::decay_t<decltype(s)>;
+        if constexpr (!std::is_same_v<T, BezierCurve>) {
+            s.fill_alpha = fill_alpha;
+        }
+    }, shape);
 }
 inline Real get_fill_alpha(const Shape &shape) {
-    return std::visit([](const auto &s) { return s.fill_alpha; }, shape);
+    return std::visit([](const auto &s) -> Real {
+        using T = std::decay_t<decltype(s)>;
+        if constexpr (std::is_same_v<T, BezierCurve>) {
+            return 1.0;
+        } else {
+            return s.fill_alpha;
+        }
+    }, shape);
 }
 inline void set_stroke_color(Shape &shape, const Vector3 &stroke_color) {
     std::visit([&](auto &s) { s.stroke_color = stroke_color; }, shape);

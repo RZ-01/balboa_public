@@ -24,25 +24,58 @@ Matrix3x3 parse_transformation(const json &node) {
                 (*scale_it)[0], (*scale_it)[1]
             };
             // TODO (HW1.4): construct a scale matrix and composite with F
-            UNUSED(scale); // silence warning, feel free to remove it
+            Matrix3x3 S = {
+                scale.x, 0.0, 0.0,
+                0.0, scale.y, 0.0,
+                0.0, 0.0, 1.0
+            };
+            F = S * F;
+
+            // UNUSED(scale); // silence warning, feel free to remove it
         } else if (auto rotate_it = it->find("rotate"); rotate_it != it->end()) {
             Real angle = *rotate_it;
             // TODO (HW1.4): construct a rotation matrix and composite with F
-            UNUSED(angle); // silence warning, feel free to remove it
+            angle = angle * M_PI / 180.0;
+            Matrix3x3 R = {
+                cos(angle), -sin(angle), 0.0,
+                sin(angle), cos(angle), 0.0,
+                0.0, 0.0, 1.0
+            };
+
+            F = R * F;
+            // UNUSED(angle); // silence warning, feel free to remove it
         } else if (auto translate_it = it->find("translate"); translate_it != it->end()) {
             Vector2 translate = Vector2{
                 (*translate_it)[0], (*translate_it)[1]
             };
             // TODO (HW1.4): construct a translation matrix and composite with F
-            UNUSED(translate); // silence warning, feel free to remove it
+            Matrix3x3 T = {
+                1.0, 0.0, translate.x,
+                0.0, 1.0, translate.y,
+                0.0, 0.0, 1.0
+            };
+            F = T * F;
+            //UNUSED(translate); // silence warning, feel free to remove it
         } else if (auto shearx_it = it->find("shear_x"); shearx_it != it->end()) {
             Real shear_x = *shearx_it;
             // TODO (HW1.4): construct a shear matrix (x direction) and composite with F
-            UNUSED(shear_x); // silence warning, feel free to remove it
+            Matrix3x3 SHX = {
+                1.0, shear_x, 0.0,
+                0.0, 1.0, 0.0,
+                0.0, 0.0, 1.0
+            };
+            F = SHX * F;
+            //UNUSED(shear_x); // silence warning, feel free to remove it
         } else if (auto sheary_it = it->find("shear_y"); sheary_it != it->end()) {
             Real shear_y = *sheary_it;
             // TODO (HW1.4): construct a shear matrix (y direction) and composite with F
-            UNUSED(shear_y); // silence warning, feel free to remove it
+            Matrix3x3 SHY = {
+                1.0, 0.0, 0.0,
+                shear_y, 1.0, 0.0,
+                0.0, 0.0, 1.0
+            };
+            F = SHY * F;
+            //UNUSED(shear_y); // silence warning, feel free to remove it
         }
     }
     return F;
@@ -275,6 +308,48 @@ Scene parse_scene(const fs::path &filename) {
             }
             polyline.transform = parse_transformation(*it);
             scene.shapes.push_back(polyline);
+        } else if ((*it)["type"] == "bezier_curve") {
+            BezierCurve bezier;
+            bezier.p0 = Vector2{0, 0};
+            bezier.p1 = Vector2{50, 100};
+            bezier.p2 = Vector2{100, 0};
+            bezier.stroke_alpha = 1;
+            bezier.stroke_width = 1;
+
+            auto p0_it = it->find("p0");
+            if (p0_it != it->end()) {
+                bezier.p0 = Vector2{
+                    (*p0_it)[0], (*p0_it)[1]
+                };
+            }
+            auto p1_it = it->find("p1");
+            if (p1_it != it->end()) {
+                bezier.p1 = Vector2{
+                    (*p1_it)[0], (*p1_it)[1]
+                };
+            }
+            auto p2_it = it->find("p2");
+            if (p2_it != it->end()) {
+                bezier.p2 = Vector2{
+                    (*p2_it)[0], (*p2_it)[1]
+                };
+            }
+            auto stroke_color_it = it->find("stroke_color");
+            if (stroke_color_it != it->end()) {
+                bezier.stroke_color = Vector3{
+                    (*stroke_color_it)[0], (*stroke_color_it)[1], (*stroke_color_it)[2]
+                };
+            }
+            auto stroke_alpha_it = it->find("stroke_alpha");
+            if (stroke_alpha_it != it->end()) {
+                bezier.stroke_alpha = (*stroke_alpha_it);
+            }
+            auto stroke_width_it = it->find("stroke_width");
+            if (stroke_width_it != it->end()) {
+                bezier.stroke_width = (*stroke_width_it);
+            }
+            bezier.transform = parse_transformation(*it);
+            scene.shapes.push_back(bezier);
         }
     }
 
@@ -319,6 +394,15 @@ std::ostream& operator<<(std::ostream &os, const Shape &shape) {
               "stroke_alpha=" << polyline->stroke_alpha << ", " << 
               "stroke_width=" << polyline->stroke_width << ", " <<
               "transform=" << std::endl << polyline->transform << "]";
+    } else if (auto *bezier = std::get_if<BezierCurve>(&shape)) {
+        os << "BezierCurve, " <<
+              "p0=" << bezier->p0 << ", " <<
+              "p1=" << bezier->p1 << ", " <<
+              "p2=" << bezier->p2 << ", " <<
+              "stroke_color=" << bezier->stroke_color << ", " << 
+              "stroke_alpha=" << bezier->stroke_alpha << ", " << 
+              "stroke_width=" << bezier->stroke_width << ", " <<
+              "transform=" << std::endl << bezier->transform << "]";
     } else {
         // Likely an unhandled case.
         os << "Unknown]";

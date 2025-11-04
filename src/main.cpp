@@ -34,6 +34,17 @@ int main(int argc, char *argv[]) {
     } else if (hw_num == "1_6") {
         Image3 img = hw_1_6(parameters);
         imwrite("hw_1_6.png", img);
+    } else if (hw_num == "1_7") {
+        Image3 img = hw_1_7(parameters);
+        imwrite("hw_1_7.png", img);
+    } else if (hw_num =="1_8"){
+        Image3 img = hw_1_8(parameters);
+        imwrite("hw_1_8.png", img);
+    } else if (hw_num == "animation") {
+        std::vector<Image3> frames = animation(parameters);
+        for (size_t i = 0; i < frames.size(); ++i) {
+            imwrite("frame_" + std::to_string(i) + ".png", frames[i]);
+        }
     } else if (hw_num == "2_1") {
         Image3 img = hw_2_1(parameters);
         imwrite("hw_2_1.png", img);
