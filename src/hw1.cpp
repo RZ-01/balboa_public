@@ -298,9 +298,15 @@ void render_circle_fast(Image3 &img, const Vector2 &center, Real radius, std::op
         inv_trans = inverse(trans.value());
     }
 
+    // compute integer, clamped loop bounds for OpenMP (must be integer "controlling predicate")
+    int y0 = std::max(0, static_cast<int>(std::floor(bbox.min.y)));
+    int y1 = std::min(static_cast<int>(img.height), static_cast<int>(std::ceil(bbox.max.y)));
+    int x0 = std::max(0, static_cast<int>(std::floor(bbox.min.x)));
+    int x1 = std::min(static_cast<int>(img.width), static_cast<int>(std::ceil(bbox.max.x)));
+
     #pragma omp parallel for schedule(guided)
-    for (int y = bbox.min.y; y < bbox.max.y; y++) {
-        for (int x = bbox.min.x; x < bbox.max.x; x++) {
+    for (int y = y0; y < y1; y++) {
+        for (int x = x0; x < x1; x++) {
             Real canvas_x = x + Real(0.5);
             Real canvas_y = img.height - y - Real(0.5);
             if(inv_trans){
@@ -326,9 +332,15 @@ void render_polyline_fast(Image3 &img, const std::vector<Vector2> &polyline, boo
     if(trans) {
         inv_trans = inverse(trans.value());
     }
+    // compute integer, clamped loop bounds for OpenMP (must be integer "controlling predicate")
+    int py0 = std::max(0, static_cast<int>(std::floor(bbox.min.y)));
+    int py1 = std::min(static_cast<int>(img.height), static_cast<int>(std::ceil(bbox.max.y)));
+    int px0 = std::max(0, static_cast<int>(std::floor(bbox.min.x)));
+    int px1 = std::min(static_cast<int>(img.width), static_cast<int>(std::ceil(bbox.max.x)));
+
     #pragma omp parallel for schedule(dynamic)
-    for (int y = bbox.min.y; y < bbox.max.y; y++) {
-        for (int x = bbox.min.x; x < bbox.max.x; x++) {
+    for (int y = py0; y < py1; y++) {
+        for (int x = px0; x < px1; x++) {
             Real canvas_x = x + Real(0.5);
             Real canvas_y = img.height - y - Real(0.5);
             if(inv_trans){
