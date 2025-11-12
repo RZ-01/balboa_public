@@ -5,9 +5,10 @@ layout (location = 1) in vec3 aColor;
 out vec3 ourColor;
 // 
 uniform mat4 rotation_matrix;
+uniform mat4 projection;
 
 void main()
 {    
-    gl_Position = rotation_matrix * vec4(aPos, 1.0);
+    gl_Position = projection * rotation_matrix * vec4(aPos, 1.0);
     ourColor = aColor;
 }
