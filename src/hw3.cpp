@@ -8,6 +8,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace hw3;
+
+static glm::mat4 to_glm_mat4(const Matrix4x4f &matrix) {
+    glm::mat4 out(1.0f);
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            out[col][row] = static_cast<float>(matrix(row, col));
+        }
+    }
+    return out;
+}
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -248,13 +258,7 @@ void hw_3_3(const std::vector<std::string> &params) {
         m.nFaces = (int)indices.size();
 
         // 转成 glm::mat4
-        glm::mat4 model_mat(1.0f);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                model_mat[j][i] = (float)mesh.model_matrix.data[i][j];
-            }
-        }
-        m.model = model_mat;
+        m.model = to_glm_mat4(mesh.model_matrix);
 
         meshGLs.push_back(m);
     }
@@ -291,13 +295,7 @@ void hw_3_3(const std::vector<std::string> &params) {
 
 
         // === View matrix ===
-        glm::mat4 view_mat(1.0f);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                view_mat[j][i] = (float)scene.camera.cam_to_world.data[i][j];
-            }
-        }
-        glm::mat4 view = glm::inverse(view_mat);
+        glm::mat4 view = glm::inverse(to_glm_mat4(scene.camera.cam_to_world));
         //glm::mat4 interactive = glm::lookAt(cam.pos, cam.pos + cam.front, cam.up);
         //glm::mat4 view = interactive * base_view; // keep both base & interactive motion
 
