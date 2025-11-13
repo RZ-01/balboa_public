@@ -18,10 +18,19 @@ static glm::mat4 to_glm_mat4(const Matrix4x4f &matrix) {
     }
     return out;
 }
-void processInput(GLFWwindow *window);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
+void framebuffer_size_callback0(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+} 
+void processInput0(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
+        glfwSetWindowShouldClose(window, true);
+}
 void hw_3_1(const std::vector<std::string> &params) {
+
+
+
     // HW 3.1: Open a window using GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -44,10 +53,10 @@ void hw_3_1(const std::vector<std::string> &params) {
         return;
     }    
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback0);  
     while(!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        processInput0(window);
 
         glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -115,7 +124,7 @@ void hw_3_2(const std::vector<std::string> &params) {
 
     while(!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        processInput0(window);
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height); 
@@ -233,7 +242,6 @@ void hw_3_3(const std::vector<std::string> &params) {
             for (auto &c : mesh.vertex_colors)
                 colors.emplace_back(c[0], c[1], c[2]);
         } else {
-            // 没有颜色时填默认白色
             for (size_t i = 0; i < mesh.vertices.size(); ++i)
                 colors.emplace_back(1.0f, 1.0f, 1.0f);
         }
@@ -332,14 +340,4 @@ void hw_3_4(const std::vector<std::string> &params) {
 
     Scene scene = parse_scene(params[0]);
     std::cout << scene << std::endl;
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-} 
-void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 }
