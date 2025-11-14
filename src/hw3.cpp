@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 using namespace hw3;
 
@@ -28,8 +29,6 @@ void processInput0(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 }
 void hw_3_1(const std::vector<std::string> &params) {
-
-
 
     // HW 3.1: Open a window using GLFW
     if (!glfwInit()) {
@@ -159,21 +158,67 @@ void hw_3_2(const std::vector<std::string> &params) {
 
 }
 
+
 struct CameraControl {
-    glm::vec3 pos{0.0f, 0.0f, 3.0f};
-    glm::vec3 front{0.0f, 0.0f, -1.0f};
-    glm::vec3 up{0.0f, 1.0f, 0.0f};
-    float speed = 2.0f;
+    glm::mat4 base_cam_to_world{1.0f};
+    float yaw = 0.0f;
+    float pitch = 0.0f;
+    double lastX = 0.0;
+    double lastY = 0.0;
+    bool firstMouse = true;
+    float sensitivity = 0.1f;
+    float moveSpeed = 0.05f;
 };
 
-void processInput(GLFWwindow* window, CameraControl& cam, float dt) {
-    float v = cam.speed * dt;
-    glm::vec3 right = glm::normalize(glm::cross(cam.front, cam.up));
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam.pos += v * cam.front;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam.pos -= v * cam.front;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam.pos -= right * v;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam.pos += right * v;
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+static glm::mat4 rotation_from_yaw_pitch(float yaw_deg, float pitch_deg) {
+    glm::mat4 yaw_mat = glm::rotate(glm::mat4(1.0f), glm::radians(yaw_deg), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 pitch_mat = glm::rotate(glm::mat4(1.0f), glm::radians(pitch_deg), glm::vec3(1.0f, 0.0f, 0.0f));
+    return yaw_mat * pitch_mat;
+}
+
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    auto state = static_cast<CameraControl*>(glfwGetWindowUserPointer(window));
+    if (!state) {
+        return;
+    }
+    if (state->firstMouse) {
+        state->lastX = xpos;
+        state->lastY = ypos;
+        state->firstMouse = false;
+        return;
+    }
+    double xoffset = xpos - state->lastX;
+    double yoffset = state->lastY - ypos; // reversed since y grows downwards
+    state->lastX = xpos;
+    state->lastY = ypos;
+
+    state->yaw -= static_cast<float>(xoffset) * state->sensitivity;
+    state->pitch += static_cast<float>(yoffset) * state->sensitivity;
+    state->pitch = std::clamp(state->pitch, -89.0f, 89.0f);
+}
+
+static void processInput(GLFWwindow* window, CameraControl* camState, float deltaTime) {
+    if (!camState) 
+        return;
+    glm::mat4 cam_to_world = camState->base_cam_to_world * rotation_from_yaw_pitch(camState->yaw, camState->pitch);
+    
+    glm::vec3 right = glm::vec3(cam_to_world[0]);    
+    glm::vec3 forward = -glm::vec3(cam_to_world[2]); 
+    
+    float velocity = camState->moveSpeed;
+    
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camState->base_cam_to_world[3] += glm::vec4(forward * velocity, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camState->base_cam_to_world[3] -= glm::vec4(forward * velocity, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camState->base_cam_to_world[3] -= glm::vec4(right * velocity, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camState->base_cam_to_world[3] += glm::vec4(right * velocity, 0.0f);
+    }
 }
 
 void hw_3_3(const std::vector<std::string> &params) {
@@ -181,7 +226,6 @@ void hw_3_3(const std::vector<std::string> &params) {
     if (params.size() == 0) {
         return;
     }
-
     Scene scene = parse_scene(params[0]);
     std::cout << scene << std::endl;
     if (!glfwInit()) {
@@ -191,7 +235,9 @@ void hw_3_3(const std::vector<std::string> &params) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow* window = glfwCreateWindow(600, 600, "hw_3_1", NULL, NULL);
+    int height = scene.camera.resolution[1];
+    int width = scene.camera.resolution[0];
+    GLFWwindow* window = glfwCreateWindow(width, height, "hw_3_3", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -209,10 +255,9 @@ void hw_3_3(const std::vector<std::string> &params) {
     glEnable(GL_FRAMEBUFFER_SRGB);
 
     Shader shader("../src/hw3_3.vs", "../src/hw3_3.fs");
-    shader.use();
 
     struct MeshGL {
-        GLuint vao, vbo_v, vbo_c, ebo;
+        GLuint vao, vbo_v, vbo_c, vbo_n, ebo;
         int nFaces;
         glm::mat4 model;
     };
@@ -223,9 +268,8 @@ void hw_3_3(const std::vector<std::string> &params) {
         glGenVertexArrays(1, &m.vao);
         glBindVertexArray(m.vao);
 
-        // === Vertex positions ===
+        //Vertex position
         std::vector<glm::vec3> positions;
-        positions.reserve(mesh.vertices.size());
         for (auto &v : mesh.vertices)
             positions.emplace_back(v[0], v[1], v[2]);
 
@@ -235,9 +279,8 @@ void hw_3_3(const std::vector<std::string> &params) {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glEnableVertexAttribArray(0);
 
-        // === Vertex colors ===
+        // Vertex colors
         std::vector<glm::vec3> colors;
-        colors.reserve(mesh.vertices.size());
         if (!mesh.vertex_colors.empty()) {
             for (auto &c : mesh.vertex_colors)
                 colors.emplace_back(c[0], c[1], c[2]);
@@ -252,7 +295,6 @@ void hw_3_3(const std::vector<std::string> &params) {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glEnableVertexAttribArray(1);
 
-
         std::vector<unsigned int> indices;
         for (auto &f : mesh.faces) {
             indices.push_back(f[0]);
@@ -261,25 +303,33 @@ void hw_3_3(const std::vector<std::string> &params) {
         }
         glGenBuffers(1, &m.ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-                     indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
         m.nFaces = (int)indices.size();
 
-        // 转成 glm::mat4
+        // convert to glm::mat4
         m.model = to_glm_mat4(mesh.model_matrix);
-
         meshGLs.push_back(m);
     }
 
-    // ---------- Camera setup ----------
-    CameraControl cam;
-    float lastFrame = glfwGetTime();
+    //  Camera 
+    CameraControl camState;
+    camState.base_cam_to_world = to_glm_mat4(scene.camera.cam_to_world);
+    glfwSetWindowUserPointer(window, &camState);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
     while (!glfwWindowShouldClose(window)) {
-        float current = glfwGetTime();
-        float delta = current - lastFrame;
-        lastFrame = current;
-        processInput(window, cam, delta);
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        processInput(window, &camState, deltaTime);
+
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, true);
+        }
 
         glClearColor(scene.background[0], scene.background[1], scene.background[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -292,21 +342,20 @@ void hw_3_3(const std::vector<std::string> &params) {
         float s = (float)scene.camera.s;
         float znear = (float)scene.camera.z_near;
         float zfar = (float)scene.camera.z_far;
-        glm::mat4 projection(1.0f);
-        projection[0][0] = 1.0f / (aspect * s);
-        projection[1][1] = 1.0f / s;
-        projection[2][2] = -zfar / (zfar - znear);
-        projection[2][3] = -(zfar * znear) / (zfar - znear);
-        projection[3][2] = -1.0f;
-        projection[3][3] = 0.0f;
+        const float vfov = 2.0f * std::atan(scene.camera.s);
 
+        // not sure why matrix in hw3 assignment doesn't work(only se background color)
+        // glm::mat4 projection(1.0f);
+        // projection[0][0] = 1.0f / (aspect * s);
+        // projection[1][1] = 1.0f / s;
+        // projection[2][2] = -zfar / (zfar - znear);
+        // projection[2][3] = -(zfar * znear) / (zfar - znear);
+        // projection[3][2] = -1.0f;
+        // projection[3][3] = 0.0f;
+        glm::mat4 projection = glm::perspective(vfov, aspect, znear, zfar);
 
-
-        // === View matrix ===
-        glm::mat4 view = glm::inverse(to_glm_mat4(scene.camera.cam_to_world));
-        //glm::mat4 interactive = glm::lookAt(cam.pos, cam.pos + cam.front, cam.up);
-        //glm::mat4 view = interactive * base_view; // keep both base & interactive motion
-
+        glm::mat4 cam_to_world = camState.base_cam_to_world * rotation_from_yaw_pitch(camState.yaw, camState.pitch);
+        glm::mat4 view = glm::inverse(cam_to_world);
         shader.use();
         shader.setMat4("projection", glm::value_ptr(projection));
         shader.setMat4("view", glm::value_ptr(view));
@@ -316,11 +365,9 @@ void hw_3_3(const std::vector<std::string> &params) {
             glBindVertexArray(m.vao);
             glDrawElements(GL_TRIANGLES, m.nFaces, GL_UNSIGNED_INT, 0);
         }
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
     for (auto &m : meshGLs) {
         glDeleteVertexArrays(1, &m.vao);
         glDeleteBuffers(1, &m.vbo_v);
@@ -328,8 +375,6 @@ void hw_3_3(const std::vector<std::string> &params) {
         glDeleteBuffers(1, &m.ebo);
     }
     glfwTerminate();
-
-
 }
 
 void hw_3_4(const std::vector<std::string> &params) {
