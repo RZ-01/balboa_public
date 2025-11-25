@@ -95,6 +95,12 @@ public:
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, mat);
     }
+    void setMat3(const std::string &name, const float *value) const {
+        glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value);
+    }
+    void setVec3(const std::string &name, const float *value) const {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value);
+    }
 
 private:
     // utility function for checking shader compilation/linking errors.

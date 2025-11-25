@@ -33,6 +33,7 @@
 
 # CMake
 build/
+outputs/
 
 *.pdf
 !handouts/imgs/*.pdf
@@ -40,3 +41,10 @@ build/
 # Vscode related
 .vscode
 __pycache__/
+
+*.blend
+*.blend1
+*.blend2
+*.fbx
+*.obj
+
